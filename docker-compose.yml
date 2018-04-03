@@ -1,0 +1,55 @@
+# This is in large part a copy from https://github.com/xiaoyao1991/presto-ethereum/
+# Changes are:
+# DNS inclusion 8.8.8.8
+# Use of custom image
+#
+version: "2"
+services:
+
+  coordinator-1:
+    dns: 8.8.8.8
+    container_name: coordinator-1
+    networks: ["vnet"]
+    hostname: coordinator-1.vnet
+    image: walker/presto:latest
+    ports: 
+      - 8080:8080
+    environment:
+      - PRESTO_JVM_MAX_HEAP=512M
+      - PRESTO_QUERY_MAX_MEMORY=1GB
+      - PRESTO_QUERY_MAX_MEMORY_PER_NODE=256MB
+      - TERM=xterm
+    command: coordinator
+      
+  worker-1:
+    dns: 8.8.8.8
+    container_name: worker-1
+    networks: ["vnet"]
+    hostname: worker-1.vnet
+    image: walker/presto:latest
+    depends_on: ["coordinator-1"]
+    environment:
+      - PRESTO_JVM_MAX_HEAP=512M
+      - PRESTO_QUERY_MAX_MEMORY=1GB
+      - PRESTO_QUERY_MAX_MEMORY_PER_NODE=256MB
+      - TERM=xterm      
+    command: worker
+
+  worker-2:
+    dns: 8.8.8.8
+    container_name: worker-2
+    networks: ["vnet"]
+    hostname: worker-2.vnet
+    image: walker/presto:latest
+    depends_on: ["coordinator-1"]
+    environment:
+      - PRESTO_JVM_MAX_HEAP=512M
+      - PRESTO_QUERY_MAX_MEMORY=1GB
+      - PRESTO_QUERY_MAX_MEMORY_PER_NODE=256MB
+      - TERM=xterm      
+    command: worker
+
+networks:
+  vnet:
+    external:
+      name: vnet 
